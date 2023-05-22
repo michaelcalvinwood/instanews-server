@@ -13,6 +13,13 @@ app.use(express.static('public'));
 app.use(express.json({limit: '200mb'})); 
 app.use(cors());
 
+const handleSocketConnection = socket => {
+    console.log('connection', socket.id);
+
+    //socket.on('url', (url) => handleUrl(socket, url));
+    //socket.on('speakers', (speakerList) => handleSpeakers(socket, speakerList));
+}
+
 app.get('/', (req, res) => {
     res.send('Hello, World!');
 });
@@ -23,6 +30,24 @@ const httpsServer = https.createServer({
   }, app);
   
 
-  httpsServer.listen(listenPort, '0.0.0.0', () => {
+const io = require('socket.io')(httpsServer, {
+    cors: {
+      //origin: "https://instanews.pymnts.com",
+      origin: "http://localhost:3000",
+      methods: ["GET", "POST"]
+    }
+  });
+
+io.on('connection', socket => {
+    handleSocketConnection(socket);
+    // client.on('connection', (socket) => socketConnection(socket));
+    // client.on('event', data => { console.log(data) });
+    // client.on('disconnect', () => { console.log('disconnected', client.id)});
+});
+
+
+httpsServer.listen(listenPort, '0.0.0.0', () => {
     console.log(`HTTPS Server running on port ${listenPort}`);
 });
+
+

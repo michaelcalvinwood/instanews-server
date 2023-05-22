@@ -1,4 +1,4 @@
 #!/bin/bash
 
-rsync -a . root@node.pymnts.com:/home/instanews/
+rsync -a --exclude "node_modules" . root@node.pymnts.com:/home/instanews/
 

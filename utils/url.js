@@ -8,7 +8,6 @@ exports.articleExtractor = async (url, html = false) => {
     let article;
     try {
         article = await articleExtractor.extract(url)
-        console.log(article)
       } catch (err) {
         console.error(err);
         return false;
@@ -22,6 +21,6 @@ exports.articleExtractor = async (url, html = false) => {
       }
     const text = convert(article.content, options);
     console.log(text);
-    return article;
+    return {title: article.title, text, html: article.content, url};
 }
 

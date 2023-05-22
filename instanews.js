@@ -50,6 +50,9 @@ const setSourceUrl = async(socket, sourceUrl) => {
 
     const article = await urlUtils.articleExtractor(sourceUrl);
 
+    console.log(article);
+    
+
 }
 
 io.on('connection', socket => {

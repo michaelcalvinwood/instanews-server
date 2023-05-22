@@ -38,9 +38,19 @@ const io = require('socket.io')(httpsServer, {
     }
   });
 
+const sendMessage = (status, msg, socket) => {
+    console.log('sendMessage socket', socket);
+    socket.emit('message', {status, msg});
+}
+
+const setSourceUrl = (socket, sourceUrl) => {
+    sendMessage('success', 'Ready to rumble', socket);
+}
+
 io.on('connection', socket => {
     handleSocketConnection(socket);
-    // client.on('connection', (socket) => socketConnection(socket));
+    socket.on('sourceUrl', (sourceUrl) => setSourceUrl(socket, sourceUrl));
+
     // client.on('event', data => { console.log(data) });
     // client.on('disconnect', () => { console.log('disconnected', client.id)});
 });

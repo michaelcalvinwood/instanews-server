@@ -8,6 +8,8 @@ const https = require('https');
 const cors = require('cors');
 const fs = require('fs');
 
+const urlUtils = require('./utils/url');
+
 const app = express();
 app.use(express.static('public'));
 app.use(express.json({limit: '200mb'})); 
@@ -43,8 +45,11 @@ const sendMessage = (status, msg, socket) => {
     socket.emit('message', {status, msg});
 }
 
-const setSourceUrl = (socket, sourceUrl) => {
-    sendMessage('success', 'Ready to rumble', socket);
+const setSourceUrl = async(socket, sourceUrl) => {
+    sendMessage('success', 'Fetching Source Article', socket);
+
+    const article = await urlUtils.articleExtractor(sourceUrl);
+
 }
 
 io.on('connection', socket => {

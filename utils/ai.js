@@ -101,3 +101,20 @@ exports.getGist = async (text, numSentences = 3) => {
     return response.content;
 }
 
+exports.getKeywordsAndAffiliations = async (text) => {
+    const prompt = `"""Provide a list of  keywords and a list of affiliations contained in the following text. The keyword list must include all names of people, organizations, events, products, and services. The affiliation list must include the individual's name as well as all titles, roles, and organizations that the individual is affiliated with. The returned format must be stringified JSON in the following format: {
+        "keywords": array of keywords goes here,
+        "affiliations": array of affiliations goes here
+        }
+        
+        Text:
+        ${text}
+        """
+        `
+    let response = await this.getTurboResponse(prompt, .4);
+
+    if (response.status === 'error') return false;
+
+    return response.content;
+}
+

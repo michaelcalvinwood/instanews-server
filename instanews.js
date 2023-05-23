@@ -10,6 +10,7 @@ const fs = require('fs');
 
 const urlUtils = require('./utils/url');
 const ai = require('./utils/ai');
+const nlp = require('./utils/nlp');
 
 const app = express();
 app.use(express.static('public'));
@@ -54,11 +55,21 @@ const setSourceUrl = async(socket, sourceUrl) => {
 
     const article = await urlUtils.articleExtractor(sourceUrl);
 
-    const { title, text, html} = article;
+    let { title, text, html} = article;
 
-    const gist = await ai.getGist(text);
+    text = nlp.nWords(text, 3250);
+
+    let keywordsAndAffiliations = await ai.getKeywordsAndAffiliations(text);
+
+    if (keywordsAndAffiliations === false) return sendMessage('error', 'Could not get keywords and affiliations.', socket);
+
+    keywordsAndAffiliations = keywordsAndAffiliations.replaceAll("\n", "");
+
+    console.log(keywordsAndAffiliations);
+
+    keywordsObj = JSON.parse(keywordsAndAffiliations);
     
-    console.log('gist', gist);
+    console.log(keywordsObj);
 
 }
 

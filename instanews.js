@@ -56,7 +56,9 @@ const setSourceUrl = async(socket, sourceUrl) => {
 
     const { title, text, html} = article;
 
+    const gist = await ai.getGist(text);
     
+    console.log('gist', gist);
 
 }
 

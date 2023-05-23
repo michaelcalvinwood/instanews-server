@@ -1,4 +1,4 @@
-const debug = false;
+const debug = true;
 
 require('dotenv').config();
 
@@ -13,6 +13,39 @@ const configuration = new Configuration({
   });
 const openai = new OpenAIApi(configuration);
 const sleep = seconds => new Promise(r => setTimeout(r, seconds * 1000));
+
+async function turboChatCompletion (prompt, temperature = 0, service = 'You are a helpful, accurate assistant.') {
+    /* 
+     * NO NEED TO SPECIFY MAX TOKENS
+     * role: assistant, system, user
+     */
+
+
+    const request = {
+        url: 'https://api.openai.com/v1/chat/completions',
+        method: 'post',
+        headers: {
+            'Authorization': `Bearer ${process.env.PYMNTS_OPENAI_KEY}`,
+        },
+        data: {
+            model: "gpt-3.5-turbo",
+            temperature,
+            messages:[
+                {
+                    role: 'system',
+                    content: service,
+
+                },
+                {
+                    role: 'user',
+                    content: prompt
+                }
+            ]
+        }
+    }
+
+    return axios(request);
+}
 
 
 exports.getTurboResponse = async (prompt, temperature = 0, service = 'You are a helpful, accurate assistant.') => {
@@ -54,3 +87,17 @@ exports.getTurboResponse = async (prompt, temperature = 0, service = 'You are a 
 
     return response;
 }
+
+exports.getGist = async (text, numSentences = 3) => {
+    const prompt = `"""Give the overall gist of the Text below in ${numSentences > 1 ? `${numSentences} sentences` : `1 sentence`}.
+    
+    Text:
+    ${text}\n"""\n`;
+
+    let response = await this.getTurboResponse(prompt, .4);
+
+    if (response.status === 'error') return false;
+
+    return response.content;
+}
+

@@ -9,6 +9,7 @@ const cors = require('cors');
 const fs = require('fs');
 
 const urlUtils = require('./utils/url');
+const ai = require('./utils/ai');
 
 const app = express();
 app.use(express.static('public'));
@@ -41,16 +42,20 @@ const io = require('socket.io')(httpsServer, {
   });
 
 const sendMessage = (status, msg, socket) => {
-    console.log('sendMessage socket', socket);
     socket.emit('message', {status, msg});
 }
 
 const setSourceUrl = async(socket, sourceUrl) => {
+    const test = urlUtils.isUrl(sourceUrl);
+
+    if (test === false) return sendMessage('error', 'Please enter a valid URL.', socket);
+
     sendMessage('success', 'Fetching Source Article', socket);
 
     const article = await urlUtils.articleExtractor(sourceUrl);
 
-    console.log(article);
+    const { title, text, html} = article;
+
     
 
 }

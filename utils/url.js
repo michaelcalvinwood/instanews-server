@@ -20,7 +20,18 @@ exports.articleExtractor = async (url, html = false) => {
         ]
       }
     const text = convert(article.content, options);
-    console.log(text);
     return {title: article.title, text, html: article.content, url};
 }
+
+exports.isUrl = url => {
+  try {
+    const test = new URL(url);
+  } catch (err) {
+    return false;
+  }
+
+  return true;
+}
+
+console.log(exports.isUrl('yoyo'));
 

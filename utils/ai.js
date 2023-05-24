@@ -155,7 +155,7 @@ exports.getConceptsNamesAndAffiliations = async (text) => {
 
 
 exports.getOverallTopic = async (text, numWords = 32) => {
-    const prompt = `"""In ${numWords} words or less, tell me the overall topic of the following text.
+    const prompt = `"""In ${numWords} words, tell me the overall gist of the following text.
 
     Text:
     ${text}
@@ -172,6 +172,27 @@ exports.getTopicAndGist = async (text, numGistSentences = 3, numTopicWords = 32)
     const prompt = `"""In ${numGistSentences > 1 ? `${numGistSentences} sentences` : `1 sentence`} tell me the gist of the following text. Also, in ${numTopicWords} words or less, tell me the overall topic of the following text. The return format must be in stringified JSON in the following format: {
         "gist": gist goes here,
         "topic": topic goes here
+    }
+
+    Text:
+    ${text}
+    """`;
+
+    let response = await this.getTurboResponse(prompt, .4);
+
+    if (response.status === 'error') return false;
+
+    try {
+        const json = JSON.parse(response.content.replaceAll("\n", ""));
+        return json;
+    } catch (err) {
+        return false;
+    }
+}
+
+exports.getRelevantFacts = async (text, numFacts = 3) => {
+    const prompt = `"""Find the ${numFacts} most relevant facts in regards to the Text below. The return format must be in stringified JSON in the following format: {
+        "facts": array of facts goes here
     }
 
     Text:

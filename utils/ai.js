@@ -116,8 +116,43 @@ exports.getKeywordsAndAffiliations = async (text) => {
 
     if (response.status === 'error') return false;
 
+    try {
+        const json = JSON.parse(response.content.replaceAll("\n", ""));
+        return json;
+    } catch (err) {
+        return false;
+    }
+
+
     return response.content;
 }
+
+exports.getConceptsNamesAndAffiliations = async (text) => {
+    const prompt = `"""Provide a list of concepts, names, and affiliations contained in the following text. The concept list must include all significant topics, concepts, and ideas. The names list must include all names of all people, organizations, events, products, and services. The affiliation list must include each individual's name as well as all titles, roles, and organizations that the individual is affiliated with. The returned format must be stringified JSON in the following format: {
+        "concepts": array of concepts goes here,
+        "names": array of names goes here,
+        "affiliations": array of affiliations goes here
+        }
+        
+        Text:
+        ${text}
+        """
+        `
+    let response = await this.getTurboResponse(prompt, .4);
+
+    if (response.status === 'error') return false;
+
+    try {
+        const json = JSON.parse(response.content.replaceAll("\n", ""));
+        return json;
+    } catch (err) {
+        return false;
+    }
+
+
+    return response.content;
+}
+
 
 exports.getOverallTopic = async (text, numWords = 32) => {
     const prompt = `"""In ${numWords} words or less, tell me the overall topic of the following text.
@@ -148,8 +183,8 @@ exports.getTopicAndGist = async (text, numGistSentences = 3, numTopicWords = 32)
     if (response.status === 'error') return false;
 
     try {
-        const gistAndTopic = JSON.parse(response.content.replaceAll("\n", ""));
-        return gistAndTopic;
+        const json = JSON.parse(response.content.replaceAll("\n", ""));
+        return json;
     } catch (err) {
         return false;
     }

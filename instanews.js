@@ -11,6 +11,7 @@ const fs = require('fs');
 const urlUtils = require('./utils/url');
 const ai = require('./utils/ai');
 const nlp = require('./utils/nlp');
+const serp = require('./utils/scaleSerp');
 
 const app = express();
 app.use(express.static('public'));
@@ -72,9 +73,48 @@ const setSourceUrl = async(socket, sourceUrl) => {
     const gistSentences = nlp.sentences(gist);
 
     console.log(gistSentences);
+    
+    const topicKeywwordsAndAffiliationsPromise = ai.getConceptsNamesAndAffiliations(topic);
+    const gistKeywordsAndAffiliationsPromise = ai.getConceptsNamesAndAffiliations(gistSentences[0]);
+
+    let keywordsAndAffiliations;
+
+    try {
+        sendMessage('success', 'Extracting keywords and affiliations from topic and gist.', socket);
+        keywordsAndAffiliations = await Promise.all([topicKeywwordsAndAffiliationsPromise, gistKeywordsAndAffiliationsPromise]);
+    } catch (err) {
+        return sendMessage('error', "Could not get keywords and affiliations from gist and topic.", socket);
+    }
+
+    console.log(keywordsAndAffiliations);
+
+    const concepts1 = keywordsAndAffiliations[0].concepts;
+    const concepts2 = keywordsAndAffiliations[1].concepts;
+
+    const names1 = keywordsAndAffiliations[0].names;
+    const names2 = keywordsAndAffiliations[1].names;
+
+    for (let i = 0; i < names1.length; ++i) names1[i] = '"' + names1[i] + '"';
+    for (let i = 0; i < names2.length; ++i) names2[i] = '"' + names2[i] + '"';
+
+    let query1, query2;
+
+    if (names1.length) query1 = names1.join(" ");
+    if (names2.length) query2 = names2.join(" ");
+
+    if (concepts1.length) query1 += names1.length ? ' ' + concepts1.join(" ") : concepts1.join(" ");
+    if (concepts2.length) query2 += names2.length ? ' ' + concepts2.join(" ") : concepts2.join(" ");
+    
+    
+    sendMessage('success', `Google query: ${query1}`, socket);
+    
+    const urls1 = await serp.urls(query1);
+
+    console.log(urls1);
+
     return;
 
-    let keywordsAndAffiliations = await ai.getKeywordsAndAffiliations(topic);
+
 
     if (keywordsAndAffiliations === false) return sendMessage('error', 'Could not get keywords and affiliations.', socket);
 

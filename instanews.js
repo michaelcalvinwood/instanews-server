@@ -57,7 +57,7 @@ const setSourceUrl = async(socket, sourceUrl) => {
 
     let { title, text, html} = article;
 
-    text = nlp.nWords(text, 3250);
+    text = nlp.nWords(text, 3250).trim();
 
     sendMessage('success', 'Determining the gist and topic of the article.', socket);
 
@@ -67,12 +67,12 @@ const setSourceUrl = async(socket, sourceUrl) => {
 
     console.log(gistAndTopic);
 
+    const { gist, topic } = gistAndTopic;
+
+    const gistSentences = nlp.sentences(gist);
+
+    console.log(gistSentences);
     return;
-
-    
-
-
-    const topic = await ai.getOverallTopic(text);
 
     let keywordsAndAffiliations = await ai.getKeywordsAndAffiliations(topic);
 

@@ -56,8 +56,8 @@ exports.getTurboResponse = async (prompt, temperature = 0, service = 'You are a 
     let result;
     let success = false;
     let count = 0;
-    let seconds = 30;
-    let maxCount = 5;
+    let seconds = 5;
+    let maxCount = 8;
     while (!success) {
         try {
             result = await turboChatCompletion(prompt, temperature, service);
@@ -74,6 +74,7 @@ exports.getTurboResponse = async (prompt, temperature = 0, service = 'You are a 
             }
             seconds *= 2;
             await sleep(seconds);
+            console.log('Retrying query');
         }
     }
 

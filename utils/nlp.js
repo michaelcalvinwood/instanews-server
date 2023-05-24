@@ -1,4 +1,7 @@
-
+const winkNLP = require( 'wink-nlp' );
+const its = require( 'wink-nlp/src/its.js' );
+const model = require( 'wink-eng-lite-web-model' );
+const nlp = winkNLP( model );
 
 exports.nWords = (text, numWords) => {
     const words = text.split(" ");
@@ -6,4 +9,10 @@ exports.nWords = (text, numWords) => {
     for (let i = 0; i < numWords; ++i) nWords.push(words[i]);
 
     return nWords.join(" ");
+}
+
+exports.sentences = (text) => {
+    const doc = nlp.readDoc( text );
+    const sentences = doc.sentences().out();
+    return sentences;
 }

@@ -14,8 +14,6 @@ exports.urls = async query => {
           time_period: "last_month",
           sort_by: "date"
         }
-
-
         
         let response;
 
@@ -36,7 +34,7 @@ exports.urls = async query => {
         for (let i = 0; i < organic.length; ++i) {
             const { title, link, domain, snippet, date, date_utc } = organic[i];
             //console.log('title, link', title, link,);
-            result.push({title, link, domain, snippet, date, date_utc});
+            result.push({id: i, title, link, domain, snippet, date, date_utc});
         }
         
         console.log('result', result);

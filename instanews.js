@@ -96,6 +96,12 @@ const setSourceUrl = async(socket, sourceUrl) => {
 
 const handleInput = async (socket, input) => {
     console.log(input);
+
+    const { topic, query } = input;
+
+    const urls = await serp.urls(query);
+
+    socket.emit('urls', urls);
 }
 
 io.on('connection', socket => {

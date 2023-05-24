@@ -8,7 +8,6 @@ exports.urls = async query => {
         api_key: SCALE_SERP_API_KEY,
           q: query,
           location: "New York,NY,United States",
-          google_domain: "google.com",
           gl: "us",
           hl: "en",
           time_period: "last_month",

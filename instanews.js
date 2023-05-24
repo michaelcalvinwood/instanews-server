@@ -11,7 +11,7 @@ const fs = require('fs');
 const urlUtils = require('./utils/url');
 const ai = require('./utils/ai');
 const nlp = require('./utils/nlp');
-const serp = require('./utils/scaleSerp');
+const serp = require('./utils/serper');
 
 const app = express();
 app.use(express.static('public'));

@@ -104,10 +104,70 @@ const handleInput = async (socket, input) => {
     socket.emit('urls', urls);
 }
 
+const processUrl = async (url, topic, article) => {
+    const {link, id} = url;
+    article[id] = {};
+    article[id].link = link;
+
+    console.log('link', link);
+
+    article[id].article = await urlUtils.articleExtractor(link);
+    if (article[id].article === false) {
+        article[id].status = false;
+        return false;
+    }
+
+    article[id].facts = await ai.getFactsRelatedToTopic(topic, article[id].article.title + "\n" + article[id].article.text);
+    if (article[id].facts === false) {
+        article[id].status = false;
+        return false;
+    }
+
+    article[id].status = true;
+    return true;
+}
+
+const handleUrls = async (socket, info) => {
+    const { urls, topic } = info;
+    const article = {};
+
+    const batchNum = 5;
+
+    let promiseList = [];
+
+    for (let i = 0; i < urls.length; i += batchNum) {
+        for (let j = 0; j < batchNum; ++j) {
+            if (i + j < urls.length) promiseList.push(processUrl(urls[i+j], topic, article));
+        }
+        console.log('promiseList', promiseList);
+        await Promise.all(promiseList);
+        promiseList = [];
+    }
+
+    const ids = Object.keys(article);
+
+    console.log('ids', ids);
+
+    console.log('article', article);
+
+    let sourceList = '';
+
+    for (let i = 0; i < ids.length; ++i) {
+        if (article[ids[i]].status) {
+            sourceList += `Source ID ${ids[i]}:\n\t` + article[ids[i]].facts.facts.join(`\t\n`) + `\n`;
+        }
+    }
+
+    console.log('sourceList', sourceList);
+    
+
+}
+
 io.on('connection', socket => {
     handleSocketConnection(socket);
     //socket.on('sourceUrl', (sourceUrl) => setSourceUrl(socket, sourceUrl));
     socket.on('input', input => handleInput(socket, input));
+    socket.on('urls', info => handleUrls(socket, info));
 
     // client.on('event', data => { console.log(data) });
     // client.on('disconnect', () => { console.log('disconnected', client.id)});

@@ -9,7 +9,7 @@ exports.articleExtractor = async (url, html = false) => {
     try {
         article = await articleExtractor.extract(url)
       } catch (err) {
-        console.error(err);
+        console.error('articleExtractor error', err);
         return false;
       }
 

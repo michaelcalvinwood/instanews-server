@@ -5,7 +5,7 @@ const { SERPER_API_KEY } = process.env;
 exports.urls = async query => {
     const axios = require('axios');
     let data = JSON.stringify({
-      "q": "Google Microsoft AI \"Not a Race\"",
+      "q": query,
       "num": 30
     });
     

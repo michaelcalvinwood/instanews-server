@@ -153,6 +153,32 @@ exports.getConceptsNamesAndAffiliations = async (text) => {
     return response.content;
 }
 
+exports.getFactsRelatedToTopic = async (topic, text) => {
+    const prompt = `"""I want to find all facts in the provided Text that are related to the Topic provided below. Be sure to include all relevant facts. If there are no facts related to the topic then return an empty list. 
+
+    The return format must solely be stringified JSON in the following format: {
+    "facts": array of relevant facts goes here
+    }
+    
+    Topic:
+    ${topic}
+
+    Text:
+    ${text}
+    """
+    `
+
+    let response = await this.getTurboResponse(prompt, .4);
+
+    if (response.status === 'error') return false;
+
+    try {
+        const json = JSON.parse(response.content.replaceAll("\n", ""));
+        return json;
+    } catch (err) {
+        return false;
+    }
+}
 
 exports.getOverallTopic = async (text, numWords = 32) => {
     const prompt = `"""In ${numWords} words, tell me the overall gist of the following text.

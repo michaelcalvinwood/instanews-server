@@ -236,3 +236,17 @@ exports.getRelevantFacts = async (text, numFacts = 3) => {
         return false;
     }
 }
+
+exports.getArticleFromSourceList = async (topic, sourceList) => {
+    const prompt = `"""Acting as a witty professor, write a warm and conversational news article on the Topic below using the facts from the various Sources below. Create the article using as many facts as possible without repeating any information.
+    
+    Topic:
+    ${topic}\n
+    ${sourceList}"""\n`;
+
+    let response = await this.getTurboResponse(prompt, .4);
+
+    if (response.status === 'error') return false;
+
+    return response.content;
+}

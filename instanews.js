@@ -154,13 +154,15 @@ const handleUrls = async (socket, info) => {
 
     for (let i = 0; i < ids.length; ++i) {
         if (article[ids[i]].status) {
-            sourceList += `Source ID ${ids[i]}:\n\t` + article[ids[i]].facts.facts.join(`\t\n`) + `\n`;
+            sourceList += `Source ID ${ids[i]}:\n\t` + article[ids[i]].facts.facts.join(`\n\t`) + `\n`;
         }
     }
 
     console.log('sourceList', sourceList);
     
+    const initialArticle = await ai.getArticleFromSourceList(topic, sourceList);
 
+    console.log('initial Article', initialArticle);
 }
 
 io.on('connection', socket => {

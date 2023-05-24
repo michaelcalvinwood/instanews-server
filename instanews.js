@@ -62,9 +62,15 @@ const setSourceUrl = async(socket, sourceUrl) => {
 
     sendMessage('success', 'Determining the gist and topic of the article.', socket);
 
-    const shortGist = await ai.getOverallTopic(text, 10);
+    //const relevantFacts = await ai.getRelevantFacts(text, 3);
+
+    console.log('relevant facts', relevantFacts);
+
+    const shortGist = await ai.getOverallTopic(text, 20);
 
     console.log('shortGist', shortGist);
+
+    return;
 
     const removePunctuation = shortGist.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"");
     const query = removePunctuation.replace(/\s{2,}/g," ");
@@ -88,9 +94,14 @@ const setSourceUrl = async(socket, sourceUrl) => {
 
 }
 
+const handleInput = async (socket, input) => {
+    console.log(input);
+}
+
 io.on('connection', socket => {
     handleSocketConnection(socket);
-    socket.on('sourceUrl', (sourceUrl) => setSourceUrl(socket, sourceUrl));
+    //socket.on('sourceUrl', (sourceUrl) => setSourceUrl(socket, sourceUrl));
+    socket.on('input', input => handleInput(socket, input));
 
     // client.on('event', data => { console.log(data) });
     // client.on('disconnect', () => { console.log('disconnected', client.id)});

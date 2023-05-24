@@ -63,7 +63,7 @@ exports.getTurboResponse = async (prompt, temperature = 0, service = 'You are a 
             result = await turboChatCompletion(prompt, temperature, service);
             success = true;
         } catch (err) {
-            console.error("axios err.data", err.response.status, err.response);
+            console.error("axios err.data", err.response.status, err.response.statusText, err.response.data);
             ++count;
             if (count >= maxCount) {
                 return {
@@ -102,7 +102,7 @@ exports.getGist = async (text, numSentences = 3) => {
 }
 
 exports.getKeywordsAndAffiliations = async (text) => {
-    const prompt = `"""Provide a list of  keywords and a list of affiliations contained in the following text. The keyword list must include all names of people, organizations, events, products, and services. The affiliation list must include the individual's name as well as all titles, roles, and organizations that the individual is affiliated with. The returned format must be stringified JSON in the following format: {
+    const prompt = `"""Provide a list of keywords and a list of affiliations contained in the following text. The keyword list must include all names of people, organizations, events, products, and services as well as all significant topics, concepts, and ideas. The affiliation list must include the individual's name as well as all titles, roles, and organizations that the individual is affiliated with. The returned format must be stringified JSON in the following format: {
         "keywords": array of keywords goes here,
         "affiliations": array of affiliations goes here
         }
@@ -118,3 +118,38 @@ exports.getKeywordsAndAffiliations = async (text) => {
     return response.content;
 }
 
+exports.getOverallTopic = async (text, numWords = 32) => {
+    const prompt = `"""In ${numWords} words or less, tell me the overall topic of the following text.
+
+    Text:
+    ${text}
+    """`;
+
+    let response = await this.getTurboResponse(prompt, .4);
+
+    if (response.status === 'error') return false;
+
+    return response.content;
+}
+
+exports.getTopicAndGist = async (text, numGistSentences = 3, numTopicWords = 32) => {
+    const prompt = `"""In ${numGistSentences > 1 ? `${numGistSentences} sentences` : `1 sentence`} tell me the gist of the following text. Also, in ${numTopicWords} words or less, tell me the overall topic of the following text. The return format must be in stringified JSON in the following format: {
+        "gist": gist goes here,
+        "topic": topic goes here
+    }
+
+    Text:
+    ${text}
+    """`;
+
+    let response = await this.getTurboResponse(prompt, .4);
+
+    if (response.status === 'error') return false;
+
+    try {
+        const gistAndTopic = JSON.parse(response.content.replaceAll("\n", ""));
+        return gistAndTopic;
+    } catch (err) {
+        return false;
+    }
+}

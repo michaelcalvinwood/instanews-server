@@ -59,7 +59,22 @@ const setSourceUrl = async(socket, sourceUrl) => {
 
     text = nlp.nWords(text, 3250);
 
-    let keywordsAndAffiliations = await ai.getKeywordsAndAffiliations(text);
+    sendMessage('success', 'Determining the gist and topic of the article.', socket);
+
+    const gistAndTopic = await ai.getTopicAndGist(text);
+
+    if (gistAndTopic === false) return sendMessage('error', 'Could not determine gist and topic of the article.', socket);
+
+    console.log(gistAndTopic);
+
+    return;
+
+    
+
+
+    const topic = await ai.getOverallTopic(text);
+
+    let keywordsAndAffiliations = await ai.getKeywordsAndAffiliations(topic);
 
     if (keywordsAndAffiliations === false) return sendMessage('error', 'Could not get keywords and affiliations.', socket);
 

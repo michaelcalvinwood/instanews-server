@@ -250,3 +250,35 @@ exports.getArticleFromSourceList = async (topic, sourceList) => {
 
     return response.content;
 }
+
+exports.rewriteArticleInEngagingManner = async (article) => {
+    const prompt = `"""In the style of a eloquent author, rewrite the following News Article in a dynamic and conversational manner. Ensure your response preserves all the quotes in the news article. The response must be at least 800 words.
+    News Article:
+    ${article}\n"""\n`;
+    
+    let response = await this.getTurboResponse(prompt, .4);
+
+    if (response.status === 'error') return false;
+
+    return response.content;
+}
+
+exports.extractReleventQuotes = async (topic, text) => {
+    const prompt = `"""Below is a Topic and Text. I want to find all the speaker quotes cited in the Text that are relevant to the Topic. I solely want quote citations that are relevant to the topic.  The return format must solely be stringified JSON in the following format:
+    {
+        "quotes": array of relevant quotes along with the name of the speaker in the following format goes here {"quote": relevant quote, "speaker": speaker of relevant quote}
+    }
+        
+    Topic:
+    ${topic}
+
+    Text:
+    ${text}"""
+    `;
+ 
+    let response = await this.getTurboResponse(prompt, .4);
+
+    if (response.status === 'error') return false;
+
+    return response.content;
+}

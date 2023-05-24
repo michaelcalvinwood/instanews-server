@@ -123,6 +123,12 @@ const processUrl = async (url, topic, article) => {
         return false;
     }
 
+    article[id].quotes = await ai.extractReleventQuotes(topic, article[id].article.text);
+    if (article[id].quotes === false) {
+        article[id].quotes = {quotes: []};
+        return false;
+    }
+
     article[id].status = true;
     return true;
 }
@@ -163,6 +169,10 @@ const handleUrls = async (socket, info) => {
     const initialArticle = await ai.getArticleFromSourceList(topic, sourceList);
 
     console.log('initial Article', initialArticle);
+
+    const engagingArticle = await ai.rewriteArticleInEngagingManner(initialArticle);
+
+    console.log('engaging article', engagingArticle);
 }
 
 io.on('connection', socket => {

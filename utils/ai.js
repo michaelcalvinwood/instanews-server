@@ -289,7 +289,7 @@ exports.extractReleventQuotes = async (topic, text) => {
 }
 
 exports.insertQuotesFromQuoteList = async (initialArticle, quoteList) => {
-    const prompt = `Below is a News Article and a list of Quotes. If any of the quotes are relevant to the news article, expand the news article by incorporating relevant quotes. If none of the quotes are relevant to the news article then return the news article in its original form.
+    const prompt = `"""Below is a News Article and a list of Quotes. If any of the quotes are relevant to the news article, expand the news article by incorporating relevant quotes. If none of the quotes are relevant to the news article then return the news article in its original form.
     
     News Article:
     ${initialArticle}

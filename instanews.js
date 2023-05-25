@@ -11,7 +11,7 @@ const fs = require('fs');
 const urlUtils = require('./utils/url');
 const ai = require('./utils/ai');
 const nlp = require('./utils/nlp');
-const serp = require('./utils/serper');
+const serp = require('./utils/serpWow');
 
 const app = express();
 app.use(express.static('public'));
@@ -152,9 +152,9 @@ const handleUrls = async (socket, info) => {
 
     const ids = Object.keys(article);
 
-    console.log('ids', ids);
+    //console.log('ids', ids);
 
-    console.log('article', article);
+    //console.log('article', article);
 
     let sourceList = '';
 
@@ -163,6 +163,10 @@ const handleUrls = async (socket, info) => {
             sourceList += `Source ID ${ids[i]}:\n\t` + article[ids[i]].facts.facts.join(`\n\t`) + `\n`;
         }
     }
+
+    const maxSourceListWords = 2500;
+
+    sourceList = nlp.nWords(sourceList, maxSourceListWords);
 
     console.log('sourceList', sourceList);
     

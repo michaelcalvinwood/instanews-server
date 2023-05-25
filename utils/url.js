@@ -33,7 +33,10 @@ exports.articleExtractor = async (url, html = false) => {
   let $ = cheerio.load(response.data);
   const body = $.html($('body'));
 
+  //console.log('body', body);
+
   const article = await articleExtractor.extractFromHtml(body, url);
+  if (!article) return false;
 
   const options = {
     selectors: [
@@ -41,6 +44,8 @@ exports.articleExtractor = async (url, html = false) => {
       { selector: 'a.button', format: 'skip' }
     ]
   }
+  
+
   let text = convert(article.content, options);
   let lines = text.split("\n");
   for (let i = 0; i < lines.length; ++i) {
@@ -62,12 +67,5 @@ exports.isUrl = url => {
   return true;
 }
 
-const test = async () => {
-  const article = await exports.articleExtractor('https://www.pymnts.com/cfo/2023/todays-macroclimate-calls-for-controlling-whats-controllable/');
-
-  console.log(article);
-}
-
-test();
 
 

@@ -25,12 +25,15 @@ exports.articleExtractor = async (url, html = false) => {
 
   try {
     response = await axios(request);
-    console.log(response.data);
   } catch (err) {
     console.err('articleExtractor error:', err);
     return false;
   }
 
+  let $ = cheerio.load(response.data);
+  const body = $.html($('body'));
+
+  console.log(body);
   return;
 
 

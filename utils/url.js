@@ -33,11 +33,13 @@ exports.articleExtractor = async (url, html = false) => {
   let $ = cheerio.load(response.data);
   const body = $.html($('body'));
 
-  console.log(body);
+  const article = await articleExtractor.extractFromHtml(body, url);
+
+  console.log(article);
   return;
 
 
-    let article;
+    //let article;
     try {
         article = await articleExtractor.extract(url)
       } catch (err) {

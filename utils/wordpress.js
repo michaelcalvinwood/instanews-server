@@ -1,5 +1,5 @@
-import axios from "axios";
-export const getJWT = async (hostname, username, password) => {
+const axios = require ("axios");
+exports.getJWT = async (hostname, username, password) => {
     
         let request = {
             url: `https://${hostname}/wp-json/jwt-auth/v1/token`,
@@ -26,7 +26,7 @@ export const getJWT = async (hostname, username, password) => {
         return response.data;
 }
 
-export const getTagId = async (hostname, username, password, tagName) => {
+exports.getTagId = async (hostname, username, password, tagName) => {
    
     let request = {
         url: `https://${hostname}/wp-json/wp/v2/tags`,
@@ -58,7 +58,7 @@ export const getTagId = async (hostname, username, password, tagName) => {
      * If the tag does not exist then create it
      */
 
-    const token  = await getJWT(hostname, username, password);
+    const token  = await exports.getJWT(hostname, username, password);
     if (token === false) return false;
 
     request = {
@@ -89,21 +89,20 @@ export const getTagId = async (hostname, username, password, tagName) => {
     return Number(response.data.id);
 }
 
-export const createPost = async (hostname, username, password, title, content, tagNames = [], status = 'draft') => {
+exports.createPost = async (hostname, username, password, title, content, tagNames = [], suggestedTitles = ['title 1', 'title 2'], status = 'draft') => {
     let token, request, response;
 
-  
     let tagIds = [];
 
     if (tagNames.length) {
         for (let i = 0; i < tagNames.length; ++i) {
-            const tagId = await getTagId (hostname, username, password, tagNames[i]);
+            const tagId = await exports.getTagId (hostname, username, password, tagNames[i]);
             tagIds.push(tagId);
         }
         
     }
 
-    token = await getJWT(hostname, username, password);
+    token = await exports.getJWT(hostname, username, password);
 
     request = {
         url: `https://${hostname}/wp-json/wp/v2/posts`,
@@ -114,7 +113,10 @@ export const createPost = async (hostname, username, password, title, content, t
             'Authorization': `Bearer ${token.token}`
         },
         data: {
-            title, content, status
+            title, content, status,
+            acf: {
+                suggested_titles: suggestedTitles.join("\n")
+            }
         }
     }
 

@@ -12,6 +12,7 @@ const urlUtils = require('./utils/url');
 const ai = require('./utils/ai');
 const nlp = require('./utils/nlp');
 const serp = require('./utils/serpWow');
+const wp = require('./utils/wordpress');
 
 const app = express();
 app.use(express.static('public'));
@@ -134,7 +135,7 @@ const processUrl = async (url, topic, article) => {
 }
 
 const handleUrls = async (socket, info) => {
-    const { urls, topic } = info;
+    const { urls, topic, login } = info;
     const article = {};
 
     const batchNum = 5;
@@ -206,6 +207,8 @@ const handleUrls = async (socket, info) => {
     const engagingArticle = await ai.rewriteArticleInEngagingManner(quoteInsertedArticle);
 
     console.log('engaging article', engagingArticle);
+
+
 }
 
 io.on('connection', socket => {
@@ -224,3 +227,9 @@ httpsServer.listen(listenPort, '0.0.0.0', () => {
 });
 
 
+const anotherTest = async () => {
+    const test = await wp.createPost('delta.pymnts.com', 'mwood', 'P%DqjXAtjjPTGJ^XwHRVbeql', 'Test Post', 'Test content');
+    console.log('test', test);
+}
+
+anotherTest();

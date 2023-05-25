@@ -3,7 +3,7 @@ const axios = require('axios');
 
 const {SERPWOW_KEY} = process.env;
 
-exports.urls = async (query, num = 20) => {
+exports.urls = async (query, num = 30) => {
     // set up the request parameters
     const params = {
         api_key: SERPWOW_KEY,

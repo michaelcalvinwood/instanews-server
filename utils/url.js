@@ -35,26 +35,21 @@ exports.articleExtractor = async (url, html = false) => {
 
   const article = await articleExtractor.extractFromHtml(body, url);
 
-  console.log(article);
-  return;
+  const options = {
+    selectors: [
+      { selector: 'a', options: { ignoreHref: true } },
+      { selector: 'a.button', format: 'skip' }
+    ]
+  }
+  let text = convert(article.content, options);
+  let lines = text.split("\n");
+  for (let i = 0; i < lines.length; ++i) {
+    if (lines[i]) lines[i] = lines[i].trim();
+    else lines[i] = "\n";
+  }
+  text = lines.join(' ');
 
-
-    //let article;
-    try {
-        article = await articleExtractor.extract(url)
-      } catch (err) {
-        console.error('articleExtractor error', err);
-        return false;
-      }
-
-    const options = {
-        selectors: [
-          { selector: 'a', options: { ignoreHref: true } },
-          { selector: 'a.button', format: 'skip' }
-        ]
-      }
-    const text = convert(article.content, options);
-    return {title: article.title, text, html: article.content, url};
+  return {title: article.title, text, html: article.content, url};
 }
 
 exports.isUrl = url => {
@@ -67,5 +62,12 @@ exports.isUrl = url => {
   return true;
 }
 
-exports.articleExtractor('https://www.pymnts.com/cfo/2023/todays-macroclimate-calls-for-controlling-whats-controllable/');
+const test = async () => {
+  const article = await exports.articleExtractor('https://www.pymnts.com/cfo/2023/todays-macroclimate-calls-for-controlling-whats-controllable/');
+
+  console.log(article);
+}
+
+test();
+
 

@@ -1,10 +1,39 @@
+require('dotenv').config();
 const axios = require('axios');
+const cheerio = require('cheerio');
 const articleExtractor = require('@extractus/article-extractor');
 const { convert } = require('html-to-text');
+
+const { SCRAPERAPI_KEY } = process.env;
 
 //const url = 'https://www.pymnts.com/news/retail/2023/will-consumers-pay-50-for-drugstore-brand-sunscreen/';
 
 exports.articleExtractor = async (url, html = false) => {
+  let request = {
+    url: 'http://api.scraperapi.com',
+    params: {
+      api_key: SCRAPERAPI_KEY,
+      url
+    },
+    method: 'get',
+    headers: {
+      "Content-Type": "application/json"
+    }
+  }
+
+  let response;
+
+  try {
+    response = await axios(request);
+    console.log(response.data);
+  } catch (err) {
+    console.err('articleExtractor error:', err);
+    return false;
+  }
+
+  return;
+
+
     let article;
     try {
         article = await articleExtractor.extract(url)
@@ -33,5 +62,5 @@ exports.isUrl = url => {
   return true;
 }
 
-console.log(exports.isUrl('yoyo'));
+exports.articleExtractor('https://www.pymnts.com/cfo/2023/todays-macroclimate-calls-for-controlling-whats-controllable/');
 

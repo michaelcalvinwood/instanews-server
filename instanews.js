@@ -170,7 +170,36 @@ const handleUrls = async (socket, info) => {
 
     console.log('initial Article', initialArticle);
 
-    const engagingArticle = await ai.rewriteArticleInEngagingManner(initialArticle);
+    let quoteList = `Quotes:\n`;
+
+    for (let i = 0; i < ids.length; ++i) {
+        if (article[ids[i]].quotes && article[ids[i]].quotes.quotes.length) {
+            console.log('quotes: ', article[ids[i]].quotes.quotes);
+            for (let j = 0; j < article[ids[i]].quotes.quotes.length; ++j) {
+               if (article[ids[i]].quotes.quotes[j].speaker
+                && article[ids[i]].quotes.quotes[j].speaker.toLowerCase() !== 'unknown' 
+                && article[ids[i]].quotes.quotes[j].speaker.toLowerCase() !== 'text'
+                && article[ids[i]].quotes.quotes[j].speaker.toLowerCase() !== 'n/a'
+                && article[ids[i]].quotes.quotes[j].speaker.toLowerCase() !== 'article'
+                && article[ids[i]].quotes.quotes[j].speaker.toLowerCase() !== 'null'
+                && article[ids[i]].quotes.quotes[j].speaker.toLowerCase() !== 'undefined') {
+                    const speaker = article[ids[i]].quotes.quotes[j].speaker;
+                    let quote = article[ids[i]].quotes.quotes[j].quote.replaceAll("\n", " ");
+                    if (!quote.startsWith('"')) quote = '"' + quote + '"';
+                    quoteList += `Quote from ${speaker}: ${quote}\n`
+                }
+            }
+        }
+    }
+
+    console.log('quoteList', quoteList);
+
+    let quoteInsertedArticle;
+
+    if (quoteList.length < 10) quoteInsertedArticle = initialArticle;
+    else quoteInsertedArticle = await ai.insertQuotesFromQuoteList(initialArticle, quoteList);
+
+    const engagingArticle = await ai.rewriteArticleInEngagingManner(quoteInsertedArticle);
 
     console.log('engaging article', engagingArticle);
 }

@@ -154,10 +154,10 @@ exports.getConceptsNamesAndAffiliations = async (text) => {
 }
 
 exports.getFactsRelatedToTopic = async (topic, text) => {
-    const prompt = `"""I want to find all facts in the provided Text that are related to the Topic provided below. Be sure to include all relevant facts. If there are no facts related to the topic then return an empty list. 
+    const prompt = `"""I want to find all facts, ideas, and concepts in the provided Text that are related to the Topic provided below. Be sure to include all relevant facts, ideas, and concepts. If there are no facts, ideas, or concepts related to the topic then return an empty list. 
 
     The return format must solely be stringified JSON in the following format: {
-    "facts": array of relevant facts goes here
+    "facts": array of relevant facts, ideas, and concepts goes here
     }
     
     Topic:
@@ -217,7 +217,7 @@ exports.getTopicAndGist = async (text, numGistSentences = 3, numTopicWords = 32)
 }
 
 exports.getRelevantFacts = async (text, numFacts = 3) => {
-    const prompt = `"""Find the ${numFacts} most relevant facts in regards to the Text below. The return format must be in stringified JSON in the following format: {
+    const prompt = `"""Find the ${numFacts} most relevant facts in regards to the Text below. The The return format must be in stringified JSON in the following format: {
         "facts": array of facts goes here
     }
 
@@ -252,7 +252,7 @@ exports.getArticleFromSourceList = async (topic, sourceList) => {
 }
 
 exports.rewriteArticleInEngagingManner = async (article) => {
-    const prompt = `"""In the style of a eloquent author, rewrite the following News Article in a dynamic and conversational manner. Ensure your response preserves all the quotes in the news article. The response must be at least 800 words.
+    const prompt = `"""In the style of a eloquent author, rewrite the following News Article in a dynamic and conversational manner. Ensure your response preserves all the quotes in the news article.
     News Article:
     ${article}\n"""\n`;
     
@@ -276,6 +276,27 @@ exports.extractReleventQuotes = async (topic, text) => {
     ${text}"""
     `;
  
+    let response = await this.getTurboResponse(prompt, .4);
+
+    if (response.status === 'error') return false;
+
+    try {
+        const json = JSON.parse(response.content.replaceAll("\n", ""));
+        return json;
+    } catch (err) {
+        return false;
+    }
+}
+
+exports.insertQuotesFromQuoteList = async (initialArticle, quoteList) => {
+    const prompt = `Below is a News Article and a list of Quotes. If any of the quotes are relevant to the news article, expand the news article by incorporating relevant quotes. If none of the quotes are relevant to the news article then return the news article in its original form.
+    
+    News Article:
+    ${initialArticle}
+    
+    ${quoteList}
+    """
+    `
     let response = await this.getTurboResponse(prompt, .4);
 
     if (response.status === 'error') return false;

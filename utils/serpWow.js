@@ -11,7 +11,8 @@ exports.urls = async (query, num = 30) => {
         search_type: "news",
         q: query,
         gl: "us",
-        sort_by: "date",
+        time_period: "last_month",
+        sort_by: "relevance",
         num
     }
     

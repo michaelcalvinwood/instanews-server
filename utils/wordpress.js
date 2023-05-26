@@ -115,6 +115,7 @@ exports.createPost = async (hostname, username, password, title, content, tagNam
         },
         data: {
             title, content, status,
+            author: 1
         }
     }
 
@@ -125,11 +126,11 @@ exports.createPost = async (hostname, username, password, title, content, tagNam
 
     if (tagNames.length) request.data.tags = tagIds;
 
-    console.log(request);
+   // console.log(request);
 
     try {
         response = await axios(request);
-        console.log(response.data);
+        console.log('WordPress post ID: ', response.data.id);
     } catch (err) {
         console.error(err);
         return false;

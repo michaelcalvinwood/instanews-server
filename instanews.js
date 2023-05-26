@@ -185,9 +185,11 @@ const handleUrls = async (socket, info) => {
             console.log('quotes: ', article[ids[i]].quotes.quotes);
             for (let j = 0; j < article[ids[i]].quotes.quotes.length; ++j) {
                if (article[ids[i]].quotes.quotes[j].speaker
-                && article[ids[i]].quotes.quotes[j].speaker.toLowerCase() !== 'unknown' 
+                && article[ids[i]].quotes.quotes[j].speaker.toLowerCase() !== 'unknown'
+                && article[ids[i]].quotes.quotes[j].speaker.toLowerCase() !== 'anonymous'  
                 && article[ids[i]].quotes.quotes[j].speaker.toLowerCase() !== 'text'
                 && article[ids[i]].quotes.quotes[j].speaker.toLowerCase() !== 'n/a'
+                && article[ids[i]].quotes.quotes[j].speaker.toLowerCase() !== 'na'
                 && article[ids[i]].quotes.quotes[j].speaker.toLowerCase() !== 'article'
                 && article[ids[i]].quotes.quotes[j].speaker.toLowerCase() !== 'null'
                 && article[ids[i]].quotes.quotes[j].speaker.toLowerCase() !== 'undefined') {
@@ -257,4 +259,4 @@ const anotherTest = async () => {
     console.log('test', test);
 }
 
-//anotherTest();
+anotherTest();

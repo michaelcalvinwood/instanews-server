@@ -89,7 +89,7 @@ exports.getTagId = async (hostname, username, password, tagName) => {
     return Number(response.data.id);
 }
 
-exports.createPost = async (hostname, username, password, title, content, tagNames = [], suggestedTitles = ['title 1', 'title 2'], status = 'draft') => {
+exports.createPost = async (hostname, username, password, title, content, tagNames = [], suggestedTitles = [], status = 'draft') => {
     let token, request, response;
 
     let tagIds = [];
@@ -114,10 +114,12 @@ exports.createPost = async (hostname, username, password, title, content, tagNam
         },
         data: {
             title, content, status,
-            acf: {
-                suggested_titles: suggestedTitles.join("\n")
-            }
         }
+    }
+
+    if (suggestedTitles.length) {
+        if (typeof data.acf === 'undefined') data.acf = {};
+        data.acf.suggested_titles = suggestedTitles.join("\n") 
     }
 
     if (tagNames.length) request.data.tags = tagIds;

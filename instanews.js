@@ -204,10 +204,24 @@ const handleUrls = async (socket, info) => {
     if (quoteList.length < 10) quoteInsertedArticle = initialArticle;
     else quoteInsertedArticle = await ai.insertQuotesFromQuoteList(initialArticle, quoteList);
 
-    const engagingArticle = await ai.rewriteArticleInEngagingManner(quoteInsertedArticle);
+    const engagingArticlePromise = ai.rewriteArticleInEngagingManner(quoteInsertedArticle);
+
+    const titlesAndTagsPromise = ai.getTagsAndTitles(quoteInsertedArticle);
+
+    let result, engagingArticle, titlesAndTags;
+
+    try {
+        result = Promise.all([engagingArticlePromise, titlesAndTagsPromise]);
+    } catch (err) {
+        console.error('handleUrls Error: ', err);
+        return false;
+    }
+
+    engagingArticle = result[0];
+    titlesAndTags = result[1];
 
     console.log('engaging article', engagingArticle);
-
+    console.log('titles and tags', titlesAndTags);
 
 }
 
@@ -232,4 +246,4 @@ const anotherTest = async () => {
     console.log('test', test);
 }
 
-anotherTest();
+//anotherTest();

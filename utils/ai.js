@@ -89,6 +89,28 @@ exports.getTurboResponse = async (prompt, temperature = 0, service = 'You are a 
     return response;
 }
 
+const getTurboJSON = async (prompt, temperature = .4) => {
+    let response = await this.getTurboResponse(prompt, temperature);
+
+    if (response.status === 'error') return false;
+
+    try {
+        const json = JSON.parse(response.content.replaceAll("\n", ""));
+        return json;
+    } catch (err) {
+        return false;
+    }
+}
+
+const getTurboText = async (prompt, temperature = .4) => {
+    let response = await this.getTurboResponse(prompt, temperature);
+
+    if (response.status === 'error') return false;
+
+    return response.content;
+}
+
+
 exports.getGist = async (text, numSentences = 3) => {
     const prompt = `"""Give the overall gist of the Text below in ${numSentences > 1 ? `${numSentences} sentences` : `1 sentence`}.
     
@@ -263,6 +285,7 @@ exports.rewriteArticleInEngagingManner = async (article) => {
     return response.content;
 }
 
+
 exports.extractReleventQuotes = async (topic, text) => {
     const prompt = `"""Below is a Topic and Text. I want to find all the speaker quotes cited in the Text that are relevant to the Topic. I solely want quote citations that are relevant to the topic.  The return format must solely be stringified JSON in the following format:
     {
@@ -276,16 +299,7 @@ exports.extractReleventQuotes = async (topic, text) => {
     ${text}"""
     `;
  
-    let response = await this.getTurboResponse(prompt, .4);
-
-    if (response.status === 'error') return false;
-
-    try {
-        const json = JSON.parse(response.content.replaceAll("\n", ""));
-        return json;
-    } catch (err) {
-        return false;
-    }
+    return await getTurboJSON(prompt, .4);
 }
 
 exports.insertQuotesFromQuoteList = async (initialArticle, quoteList) => {
@@ -297,9 +311,21 @@ exports.insertQuotesFromQuoteList = async (initialArticle, quoteList) => {
     ${quoteList}
     """
     `
-    let response = await this.getTurboResponse(prompt, .4);
+   return await getTurboText(prompt, .4);
+}
 
-    if (response.status === 'error') return false;
+exports.getTagsAndTitles = async (article, numTitles = 10) => {
+    const prompt = `"""Give ${numTitles} interesting, eye-catching titles for the provided News Article below.
+    Also generate a list of tags that include the important words and phrases in the response. 
+    The list of tags must also include the names of all people, products, services, places, companies, and organizations mentioned in the response.
+    Also generate a conclusion for the news article.
+    The return format must be stringified JSON in the following format: {
+        "titles": array of titles goes here
+        "tags": array of tags go here
+        "conclusion": conclusion goes here
+    }
+    News Article:
+    ${article}\n"""\n`;
 
-    return response.content;
+    return await getTurboJSON(prompt, .7);
 }

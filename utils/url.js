@@ -26,7 +26,7 @@ exports.articleExtractor = async (url, html = false) => {
   try {
     response = await axios(request);
   } catch (err) {
-    console.err('articleExtractor error:', err);
+    console.error('articleExtractor error:', err);
     return false;
   }
 

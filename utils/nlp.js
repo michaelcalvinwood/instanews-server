@@ -8,7 +8,7 @@ exports.nWords = (text, numWords) => {
     const nWords = [];
     for (let i = 0; i < numWords; ++i) nWords.push(words[i]);
 
-    return nWords.join(" ");
+    return nWords.join(" ").trim();
 }
 
 exports.sentences = (text) => {

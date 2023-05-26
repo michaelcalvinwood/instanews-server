@@ -27,6 +27,7 @@ exports.getJWT = async (hostname, username, password) => {
 }
 
 exports.getTagId = async (hostname, username, password, tagName) => {
+    console.log('getTagId', tagName);
    
     let request = {
         url: `https://${hostname}/wp-json/wp/v2/tags`,
@@ -36,7 +37,7 @@ exports.getTagId = async (hostname, username, password, tagName) => {
         }
     }
 
-    console.log(request);
+    //console.log(request);
 
     let response;
 
@@ -75,7 +76,7 @@ exports.getTagId = async (hostname, username, password, tagName) => {
         }
     }
 
-    console.log(request);
+    //console.log(request);
 
     try {
         response = await axios(request);
@@ -84,7 +85,7 @@ exports.getTagId = async (hostname, username, password, tagName) => {
         return false;
     }
 
-    console.log(response.data);
+    //console.log(response.data);
   
     return Number(response.data.id);
 }
@@ -118,8 +119,8 @@ exports.createPost = async (hostname, username, password, title, content, tagNam
     }
 
     if (suggestedTitles.length) {
-        if (typeof data.acf === 'undefined') data.acf = {};
-        data.acf.suggested_titles = suggestedTitles.join("\n") 
+        if (typeof request.data.acf === 'undefined') request.data.acf = {};
+        request.data.acf.suggested_titles = suggestedTitles.join("\n") 
     }
 
     if (tagNames.length) request.data.tags = tagIds;

@@ -19,6 +19,8 @@ app.use(express.static('public'));
 app.use(express.json({limit: '200mb'})); 
 app.use(cors());
 
+const sleep = seconds => new Promise(r => setTimeout(r, seconds * 1000));
+
 const handleSocketConnection = socket => {
     console.log('connection', socket.id);
 
@@ -105,7 +107,10 @@ const handleInput = async (socket, input) => {
     socket.emit('urls', urls);
 }
 
-const processUrl = async (url, topic, article) => {
+const processUrl = async (url, topic, article, index = 0, sleepStagger = 3) => {
+    console.log(`Sleeping [${index}]: ${index * sleepStagger}`);
+    if (index) await sleep(index * sleepStagger);
+
     const {link, id} = url;
     article[id] = {};
     article[id].link = link;
@@ -118,13 +123,13 @@ const processUrl = async (url, topic, article) => {
         return false;
     }
 
-    article[id].facts = await ai.getFactsRelatedToTopic(topic, article[id].article.title + "\n" + article[id].article.text);
+    article[id].facts = await ai.getFactsRelatedToTopic(topic, article[id].article.title + "\n" + nlp.nWords(article[id].article.text, 2500));
     if (article[id].facts === false) {
         article[id].status = false;
         return false;
     }
 
-    article[id].quotes = await ai.extractReleventQuotes(topic, article[id].article.text);
+    article[id].quotes = await ai.extractReleventQuotes(topic, nlp.nWords(article[id].article.text, 2500));
     if (article[id].quotes === false) {
         article[id].quotes = {quotes: []};
         return false;
@@ -142,20 +147,18 @@ const handleUrls = async (socket, info) => {
 
     let promiseList = [];
 
-    for (let i = 0; i < urls.length; i += batchNum) {
-        for (let j = 0; j < batchNum; ++j) {
-            if (i + j < urls.length) promiseList.push(processUrl(urls[i+j], topic, article));
-        }
-        console.log('promiseList', promiseList);
+    for (let i = 0; i < urls.length; ++i) promiseList.push(processUrl(urls[i], topic, article, i));
+
+    console.log('promiseList', promiseList);
+    
+    try {
         await Promise.all(promiseList);
-        promiseList = [];
+    } catch (err) {
+        console.error('handleUrls error', err);
+        return false;
     }
-
+    
     const ids = Object.keys(article);
-
-    //console.log('ids', ids);
-
-    //console.log('article', article);
 
     let sourceList = '';
 
@@ -211,7 +214,8 @@ const handleUrls = async (socket, info) => {
     let result, engagingArticle, titlesAndTags;
 
     try {
-        result = Promise.all([engagingArticlePromise, titlesAndTagsPromise]);
+        result = await Promise.all([engagingArticlePromise, titlesAndTagsPromise]);
+        console.log('result', result);
     } catch (err) {
         console.error('handleUrls Error: ', err);
         return false;
@@ -223,6 +227,13 @@ const handleUrls = async (socket, info) => {
     console.log('engaging article', engagingArticle);
     console.log('titles and tags', titlesAndTags);
 
+    const titles = titlesAndTags.titles;
+    const tags = titlesAndTags.tags;
+
+    console.log('login', login);
+    result = await wp.createPost('delta.pymnts.com', login.username, login.password, titles[0], engagingArticle, tags, titles);
+
+    console.log('WordPress Result', result);
 }
 
 io.on('connection', socket => {

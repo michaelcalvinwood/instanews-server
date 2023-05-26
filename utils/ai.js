@@ -56,8 +56,8 @@ exports.getTurboResponse = async (prompt, temperature = 0, service = 'You are a 
     let result;
     let success = false;
     let count = 0;
-    let seconds = 5;
-    let maxCount = 8;
+    let seconds = 3;
+    let maxCount = 10;
     while (!success) {
         try {
             result = await turboChatCompletion(prompt, temperature, service);
@@ -74,7 +74,7 @@ exports.getTurboResponse = async (prompt, temperature = 0, service = 'You are a 
             }
             seconds *= 2;
             await sleep(seconds);
-            console.log('Retrying query');
+            console.log('Retrying query:', prompt);
         }
     }
 
@@ -296,14 +296,14 @@ exports.extractReleventQuotes = async (topic, text) => {
     ${topic}
 
     Text:
-    ${text}"""
+    ${text.trim()}"""
     `;
  
     return await getTurboJSON(prompt, .4);
 }
 
 exports.insertQuotesFromQuoteList = async (initialArticle, quoteList) => {
-    const prompt = `"""Below is a News Article and a list of Quotes. If any of the quotes are relevant to the news article, expand the news article by incorporating relevant quotes. If none of the quotes are relevant to the news article then return the news article in its original form.
+    const prompt = `"""Below is a News Article and a list of Quotes. For each quote that is relevant to the news article, make the news article longer by incorporating every relevant quote. If none of the quotes are relevant to the news article then return the news article in its original form.
     
     News Article:
     ${initialArticle}

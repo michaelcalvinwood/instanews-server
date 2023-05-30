@@ -274,7 +274,7 @@ exports.getArticleFromSourceList = async (topic, sourceList) => {
 }
 
 exports.rewriteArticleInEngagingManner = async (article) => {
-    const prompt = `"""As a professional journalist, rewrite the following News Article in a dynamic, engaging, and conversational manner. Ensure your response preserves all the quotes in the news article.
+    const prompt = `"""As a professional journalist, rewrite the following News Article in a dynamic and engaging style. Ensure your response preserves all the quotes in the news article.
     News Article:
     ${article}\n"""\n`;
     

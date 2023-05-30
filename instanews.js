@@ -40,8 +40,8 @@ const httpsServer = https.createServer({
 
 const io = require('socket.io')(httpsServer, {
     cors: {
-      //origin: "https://instanews.pymnts.com",
-      origin: "http://localhost:3000",
+      origin: "https://instanews.pymnts.com",
+      //origin: "http://localhost:3000",
       methods: ["GET", "POST"]
     }
   });
@@ -102,7 +102,7 @@ const handleInput = async (socket, input) => {
 
     const { topic, query } = input;
 
-    const urls = await serp.urls(query);
+    const urls = await serp.urls(query, 50);
 
     socket.emit('urls', urls);
 }
@@ -259,4 +259,4 @@ const anotherTest = async () => {
     console.log('test', test);
 }
 
-anotherTest();
+//anotherTest();

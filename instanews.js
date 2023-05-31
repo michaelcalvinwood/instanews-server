@@ -1,5 +1,5 @@
 const listenPort = 6405;
-const hostname = 'node.pymnts.com'
+const hostname = 'instanews.pymnts.com'
 const privateKeyPath = `/etc/letsencrypt/live/${hostname}/privkey.pem`;
 const fullchainPath = `/etc/letsencrypt/live/${hostname}/fullchain.pem`;
 
@@ -7,6 +7,7 @@ const express = require('express');
 const https = require('https');
 const cors = require('cors');
 const fs = require('fs');
+const { v4: uuidv4 } = require('uuid');
 
 const urlUtils = require('./utils/url');
 const ai = require('./utils/ai');
@@ -309,9 +310,20 @@ const handleUrls = async (socket, info) => {
 }
 
 const processSeed = async (req, res) => {
-    console.log('article', req.body.article);
+    const { article } = req.body;
+    const id = uuidv4();
 
-    res.status(200).json('ok');
+    const q = `INSERT INTO seeds (id, article) VALUES ('${id}', ${mysql.escape(article)})`;
+    let result;
+
+    try {
+        result = await mysqlQuery(q);
+    } catch (err) {
+        console.error('processSeed error', err);
+        return res.status(500).json("mysql error");
+    }
+    
+    res.status(200).json({id});
 }
 
 io.on('connection', socket => {

@@ -51,6 +51,24 @@ const mysqlQuery = query => {
   })
 }
 
+const credibleDomains = [];
+
+const getCredibleDomains = async () => {
+    let result;
+
+    try {
+        result = await mysqlQuery('SELECT * FROM credible_domains');
+    } catch (err) {
+        return console.error('getCredibleDomains error', err);
+    }
+
+    result.forEach(entry => credibleDomains.push(entry.domain));
+
+    console.log('credibleDomains', credibleDomains);
+}
+
+getCredibleDomains();
+
 const app = express();
 app.use(express.static('public'));
 app.use(express.json({limit: '200mb'})); 

@@ -163,6 +163,19 @@ const handleInput = async (socket, input) => {
 }
 
 const processUrl = async (url, topic, article, index = 0, sleepStagger = 3) => {
+   
+    try {
+        const urlInfo = new URL(url.link);
+        const query = `INSERT IGNORE INTO credible_domains (domain) VALUES ('${urlInfo.hostname}')`;
+        let test = credibleDomains.find(domain => domain === url.link);
+        if (!test) {
+            credibleDomains.push(url.link);
+            await mysqlQuery(query);
+        }
+    } catch (err) {
+        console.error('processUrl error', err);
+    }
+    
     console.log(`Sleeping [${index}]: ${index * sleepStagger}`);
     if (index) await sleep(index * sleepStagger);
 

@@ -1,5 +1,6 @@
 require('dotenv').config();
 const axios = require('axios');
+const { v4: uuidv4 } = require('uuid');
 
 const {SERPWOW_KEY} = process.env;
 
@@ -35,7 +36,7 @@ exports.urls = async (query, num = 30) => {
     for (let i = 0; i < organic.length; ++i) {
         const { title, link, domain, snippet, date, date_utc } = organic[i];
         //console.log('title, link', title, link,);
-        result.push({id: i, title, link, domain, snippet, date, date_utc});
+        result.push({id: uuidv4(), title, link, domain, snippet, date, date_utc});
     }
 
     console.log('result', result);

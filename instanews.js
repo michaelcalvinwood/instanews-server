@@ -87,6 +87,8 @@ app.get('/', (req, res) => {
     res.send('Hello, World!');
 });
 
+
+
 const httpsServer = https.createServer({
     key: fs.readFileSync(privateKeyPath),
     cert: fs.readFileSync(fullchainPath),
@@ -306,6 +308,12 @@ const handleUrls = async (socket, info) => {
     console.log('WordPress Result', result);
 }
 
+const processSeed = async (req, res) => {
+    console.log('article', req.body.article);
+
+    res.status(200).json('ok');
+}
+
 io.on('connection', socket => {
     handleSocketConnection(socket);
     //socket.on('sourceUrl', (sourceUrl) => setSourceUrl(socket, sourceUrl));
@@ -316,6 +324,7 @@ io.on('connection', socket => {
     // client.on('disconnect', () => { console.log('disconnected', client.id)});
 });
 
+app.post('/seed', (req, res) => processSeed(req, res));
 
 httpsServer.listen(listenPort, '0.0.0.0', () => {
     console.log(`HTTPS Server running on port ${listenPort}`);

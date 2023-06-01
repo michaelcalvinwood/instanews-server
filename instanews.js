@@ -179,7 +179,6 @@ const processArticleText = async (articleText, id, topic, article) => {
         return false;
     }
 
-    console.log('article', article[id].article);
 
     article[id].facts = await ai.getFactsRelatedToTopic(topic, article[id].article.title + "\n" + nlp.nWords(article[id].article.text, 2500));
     if (article[id].facts === false) {
@@ -261,7 +260,7 @@ const handleUrls = async (socket, info) => {
         }
     }
 
-    console.log('articleText', articleText);
+   // console.log('articleText', articleText);
 
     const article = {};
 
@@ -269,7 +268,7 @@ const handleUrls = async (socket, info) => {
 
     let promiseList = [];
 
-    //promiseList.push(processArticleText (articleText, articleId, topic, article))
+    promiseList.push(processArticleText (articleText, articleId, topic, article))
     for (let i = 0; i < urls.length; ++i) promiseList.push(processUrl(urls[i], topic, article, i));
 
     console.log('promiseList', promiseList);
@@ -280,7 +279,7 @@ const handleUrls = async (socket, info) => {
         console.error('handleUrls error', err);
         return false;
     }
-    
+
     const ids = Object.keys(article);
 
     let sourceList = '';

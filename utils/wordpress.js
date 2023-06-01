@@ -94,6 +94,8 @@ exports.createPost = async (hostname, username, password, title, content, tagNam
     let token, request, response;
 
     let tagIds = [];
+    let test = tagNames.find(tag => tag === 'news');
+    if (!test) tagNames.push('news');
 
     if (tagNames.length) {
         for (let i = 0; i < tagNames.length; ++i) {

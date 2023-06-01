@@ -2,6 +2,8 @@ require('dotenv').config();
 const axios = require('axios');
 const cheerio = require('cheerio');
 const articleExtractor = require('@extractus/article-extractor');
+
+
 const { convert } = require('html-to-text');
 
 const { SCRAPERAPI_KEY } = process.env;
@@ -36,7 +38,12 @@ exports.articleExtractor = async (url, html = false) => {
   //console.log('body', body);
 
   const article = await articleExtractor.extractFromHtml(body, url);
-  if (!article) return false;
+  if (!article) {
+    article = {
+      title: 'seed',
+      content: body
+    }
+  }
 
   const options = {
     selectors: [
@@ -58,9 +65,15 @@ exports.articleExtractor = async (url, html = false) => {
 }
 
 exports.articleTextExtractor = async (body) => {
-  const article = await articleExtractor.extractFromHtml(body);
-  if (!article) return false;
-
+  articleExtractor.setSanitizeHtmlOptions({parseStyleAttributes: false});
+  let article = await articleExtractor.extractFromHtml(body);
+  console.log('returned article', article);
+  if (!article) {
+    article = {
+      title: 'seed',
+      content: body
+    }
+  }
   const options = {
     selectors: [
       { selector: 'a', options: { ignoreHref: true } },

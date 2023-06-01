@@ -57,6 +57,29 @@ exports.articleExtractor = async (url, html = false) => {
   return {title: article.title, text, html: article.content, url};
 }
 
+exports.articleTextExtractor = async (body) => {
+  const article = await articleExtractor.extractFromHtml(body);
+  if (!article) return false;
+
+  const options = {
+    selectors: [
+      { selector: 'a', options: { ignoreHref: true } },
+      { selector: 'a.button', format: 'skip' }
+    ]
+  }
+  
+
+  let text = convert(article.content, options);
+  let lines = text.split("\n");
+  for (let i = 0; i < lines.length; ++i) {
+    if (lines[i]) lines[i] = lines[i].trim();
+    else lines[i] = "\n";
+  }
+  text = lines.join(' ');
+
+  return {title: article.title, text, html: article.content, url: 'seed'};
+}
+
 exports.isUrl = url => {
   try {
     const test = new URL(url);

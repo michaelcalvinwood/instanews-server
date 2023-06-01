@@ -1,4 +1,6 @@
-const listenPort = 6405;
+const cwd = process.cwd();
+console.log('cwd', cwd);
+const listenPort = cwd === '/home/instanews-dev' ? 6406 : 6405;
 const hostname = 'instanews.pymnts.com'
 const privateKeyPath = `/etc/letsencrypt/live/${hostname}/privkey.pem`;
 const fullchainPath = `/etc/letsencrypt/live/${hostname}/fullchain.pem`;
@@ -98,7 +100,7 @@ const httpsServer = https.createServer({
 
 const io = require('socket.io')(httpsServer, {
     cors: {
-      origin: "https://instanews.pymnts.com",
+      origin: cwd === '/home/instanews-dev' ? "https://instanews-dev.pymnts.com" : "https://instanews.pymnts.com",
       //origin: "http://localhost:3000",
       methods: ["GET", "POST"]
     }
@@ -165,8 +167,41 @@ const handleInput = async (socket, input) => {
     socket.emit('urls', urls);
 }
 
+const processArticleText = async (articleText, id, topic, article) => {
+    article[id] = {};
+    article[id].link = 'seed';
+
+    console.log('link: seed');
+
+    article[id].article = await urlUtils.articleTextExtractor(articleText);
+    if (article[id].article === false) {
+        article[id].status = false;
+        return false;
+    }
+
+    console.log('article', article[id].article);
+
+    article[id].facts = await ai.getFactsRelatedToTopic(topic, article[id].article.title + "\n" + nlp.nWords(article[id].article.text, 2500));
+    if (article[id].facts === false) {
+        article[id].status = false;
+        return false;
+    }
+
+    article[id].quotes = await ai.extractReleventQuotes(topic, nlp.nWords(article[id].article.text, 2500));
+    if (article[id].quotes === false) {
+        article[id].quotes = {quotes: []};
+        return false;
+    }
+
+    article[id].status = true;
+    return true;
+}
+
 const processUrl = async (url, topic, article, index = 0, sleepStagger = 3) => {
    
+    /*
+     * Update credible domains
+     */
     try {
         const urlInfo = new URL(url.link);
         const query = `INSERT IGNORE INTO credible_domains (domain) VALUES ('${urlInfo.hostname}')`;
@@ -211,13 +246,30 @@ const processUrl = async (url, topic, article, index = 0, sleepStagger = 3) => {
 }
 
 const handleUrls = async (socket, info) => {
-    const { urls, topic, login } = info;
+    const { urls, topic, login, articleId } = info;
+
+    let articleText = '';
+
+    if (articleId) {
+        const q = `SELECT article FROM seeds WHERE id = '${articleId}'`;
+        let result;
+        try {
+            result = await mysqlQuery(q);
+            articleText = result[0].article;
+        } catch (err) {
+            console.error('handleUrls error', err);
+        }
+    }
+
+    console.log('articleText', articleText);
+
     const article = {};
 
     const batchNum = 5;
 
     let promiseList = [];
 
+    //promiseList.push(processArticleText (articleText, articleId, topic, article))
     for (let i = 0; i < urls.length; ++i) promiseList.push(processUrl(urls[i], topic, article, i));
 
     console.log('promiseList', promiseList);

@@ -65,7 +65,8 @@ exports.getTurboResponse = async (prompt, temperature = 0, service = 'You are a 
         } catch (err) {
             console.error("axios err.data", err.response.status, err.response.statusText, err.response.data);
             ++count;
-            if (count >= maxCount) {
+            if (count >= maxCount || err.response.status === 400) {
+                console.log("STATUS 400 EXIT");
                 return {
                     status: 'error',
                     number: err.response.status,
@@ -192,14 +193,21 @@ exports.getFactsRelatedToTopic = async (topic, text) => {
 
     let response = await this.getTurboResponse(prompt, .4);
 
+    console.log("RESPONSE", response);
+
     if (response.status === 'error') return false;
 
+    let json;
     try {
-        const json = JSON.parse(response.content.replaceAll("\n", ""));
-        return json;
+        json = JSON.parse(response.content.replaceAll("\n", ""));
+        
     } catch (err) {
-        return false;
+        json = false;
     }
+    
+    console.log('json', json);
+
+    return json;
 }
 
 exports.getOverallTopic = async (text, numWords = 32) => {

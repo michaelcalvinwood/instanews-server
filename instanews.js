@@ -180,13 +180,13 @@ const processArticleText = async (articleText, id, topic, article) => {
     }
 
 
-    article[id].facts = await ai.getFactsRelatedToTopic(topic, article[id].article.title + "\n" + nlp.nWords(article[id].article.text, 2500));
+    article[id].facts = await ai.getFactsRelatedToTopic(topic, article[id].article.title + "\n" + nlp.nWords(article[id].article.text, 2000));
     if (article[id].facts === false) {
         article[id].status = false;
         return false;
     }
 
-    article[id].quotes = await ai.extractReleventQuotes(topic, nlp.nWords(article[id].article.text, 2500));
+    article[id].quotes = await ai.extractReleventQuotes(topic, nlp.nWords(article[id].article.text, 2000));
     if (article[id].quotes === false) {
         article[id].quotes = {quotes: []};
         return false;
@@ -228,13 +228,13 @@ const processUrl = async (url, topic, article, index = 0, sleepStagger = 3) => {
         return false;
     }
 
-    article[id].facts = await ai.getFactsRelatedToTopic(topic, article[id].article.title + "\n" + nlp.nWords(article[id].article.text, 2500));
+    article[id].facts = await ai.getFactsRelatedToTopic(topic, article[id].article.title + "\n" + nlp.nWords(article[id].article.text, 2000));
     if (article[id].facts === false) {
         article[id].status = false;
         return false;
     }
 
-    article[id].quotes = await ai.extractReleventQuotes(topic, nlp.nWords(article[id].article.text, 2500));
+    article[id].quotes = await ai.extractReleventQuotes(topic, nlp.nWords(article[id].article.text, 2000));
     if (article[id].quotes === false) {
         article[id].quotes = {quotes: []};
         return false;
@@ -268,7 +268,7 @@ const handleUrls = async (socket, info) => {
 
     let promiseList = [];
 
-    promiseList.push(processArticleText (articleText, articleId, topic, article))
+    if (articleText) promiseList.push(processArticleText (articleText, articleId, topic, article))
     for (let i = 0; i < urls.length; ++i) promiseList.push(processUrl(urls[i], topic, article, i));
 
     console.log('promiseList', promiseList);
@@ -280,7 +280,11 @@ const handleUrls = async (socket, info) => {
         return false;
     }
 
+    console.log('article', article);
+
     const ids = Object.keys(article);
+
+    console.log('ids', ids);
 
     let sourceList = '';
 
@@ -295,6 +299,11 @@ const handleUrls = async (socket, info) => {
     sourceList = nlp.nWords(sourceList, maxSourceListWords);
 
     console.log('sourceList', sourceList);
+
+    if (!sourceList) {
+        console.log("No sourceList EXIT");
+        return false;
+    }
     
     const initialArticle = await ai.getArticleFromSourceList(topic, sourceList);
 
@@ -308,6 +317,8 @@ const handleUrls = async (socket, info) => {
             for (let j = 0; j < article[ids[i]].quotes.quotes.length; ++j) {
                if (article[ids[i]].quotes.quotes[j].speaker
                 && article[ids[i]].quotes.quotes[j].speaker.toLowerCase() !== 'unknown'
+                && article[ids[i]].quotes.quotes[j].speaker.toLowerCase() !== 'author'
+                && article[ids[i]].quotes.quotes[j].speaker.toLowerCase() !== 'authors'
                 && article[ids[i]].quotes.quotes[j].speaker.toLowerCase() !== 'anonymous'  
                 && article[ids[i]].quotes.quotes[j].speaker.toLowerCase() !== 'text'
                 && article[ids[i]].quotes.quotes[j].speaker.toLowerCase() !== 'n/a'

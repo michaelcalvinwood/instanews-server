@@ -10,56 +10,59 @@ const { SCRAPERAPI_KEY } = process.env;
 
 //const url = 'https://www.pymnts.com/news/retail/2023/will-consumers-pay-50-for-drugstore-brand-sunscreen/';
 
-exports.articleExtractor = async (url, html = false) => {
+const getBody = async url => {
   let request = {
-    url: 'http://api.scraperapi.com',
-    params: {
-      api_key: SCRAPERAPI_KEY,
-      url
-    },
-    method: 'get',
-    headers: {
-      "Content-Type": "application/json"
+      url: 'http://api.scraperapi.com',
+      params: {
+        api_key: SCRAPERAPI_KEY,
+        url
+      },
+      method: 'get',
+      headers: {
+        "Content-Type": "application/json"
+      }
     }
-  }
-
-  let response;
-
-  try {
-    response = await axios(request);
-  } catch (err) {
-    console.error('articleExtractor error:', err);
-    return false;
-  }
-
-  let $ = cheerio.load(response.data);
-  const body = $.html($('body'));
-
-  //console.log('body', body);
-
-  const article = await articleExtractor.extractFromHtml(body, url);
-  if (!article) {
-    article = {
-      title: 'seed',
-      content: body
-    }
-  }
-
-  const options = {
-    selectors: [
-      { selector: 'a', options: { ignoreHref: true } },
-      { selector: 'a.button', format: 'skip' }
-    ]
-  }
   
+    let response;
+  
+    try {
+      response = await axios(request);
+    } catch (err) {
+      console.error('articleExtractor error:', err);
+      return false;
+    }
+  
+    return response.data;
+}
 
-  let text = convert(article.content, options);
-  let lines = text.split("\n");
-  for (let i = 0; i < lines.length; ++i) {
-    if (lines[i]) lines[i] = lines[i].trim();
-    else lines[i] = "\n";
-  }
-  text = lines.join(' ');
+const getText = html => {
+  const options = {
+      selectors: [
+        { selector: 'a', options: { ignoreHref: true } },
+        { selector: 'a.button', format: 'skip' }
+      ]
+    }
+    
+    let text = convert(html, options);
+    let lines = text.split("\n");
+    for (let i = 0; i < lines.length; ++i) {
+      if (lines[i]) lines[i] = lines[i].trim();
+      else lines[i] = "\n";
+    }
+    text = lines.join(' ');
+
+    return text;
+}
+
+exports.articleExtractor = async (url, html = false) => {
+  const body = await getBody(url);
+
+  if (body === false) return false;
+
+  let article = await articleExtractor.extractFromHtml(body, url);
+  if (!article) return false;
+   
+  text = getText(article.content);
 
   return {title: article.title, text, html: article.content, url};
 }
@@ -74,21 +77,8 @@ exports.articleTextExtractor = async (body) => {
       content: body
     }
   }
-  const options = {
-    selectors: [
-      { selector: 'a', options: { ignoreHref: true } },
-      { selector: 'a.button', format: 'skip' }
-    ]
-  }
   
-
-  let text = convert(article.content, options);
-  let lines = text.split("\n");
-  for (let i = 0; i < lines.length; ++i) {
-    if (lines[i]) lines[i] = lines[i].trim();
-    else lines[i] = "\n";
-  }
-  text = lines.join(' ');
+  text = getText(article.content);
 
   return {title: article.title, text, html: article.content, url: 'seed'};
 }

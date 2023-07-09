@@ -377,17 +377,12 @@ const handleUrls = async (socket, info) => {
 const processSeed = async (req, res) => {
     const { article, url, title, altTitle } = req.body;
 
-    console.log(url, title, altTitle);
-    return;
-
     const fileName = `seed--${uuidv4()}.html`;
     let link = await s3.uploadHTML(article, 'seeds', fileName);
     
     if (!link) return res.status(500).json('internal server error');
-    
-    const id = uuidv4();
 
-    const q = `INSERT INTO seeds (id, article) VALUES ('${id}', ${mysql.escape(article)})`;
+    const q = `INSERT INTO seeds (url, link, title, article) VALUES ('${url}', '${link}', ${mysql.escape(title ? title : altTitle)}, ${mysql.escape(article)})`;
     let result;
 
     try {
@@ -397,7 +392,7 @@ const processSeed = async (req, res) => {
         return res.status(500).json("mysql error");
     }
     
-    res.status(200).json({id});
+    res.status(200).json({fileName});
 }
 
 // io.on('connection', socket => {

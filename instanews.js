@@ -377,7 +377,12 @@ const handleUrls = async (socket, info) => {
 const processSeed = async (req, res) => {
     const { article } = req.body;
 
-    console.log(article);
+    const fileName = `seed--${uuidv4()}.html`;
+    let link = await s3.uploadHTML(article, 'seeds', fileName);
+    
+    if (!link) return res.status(500).json('internal server error');
+    
+    console.log('link', link);
     return res.status(200).json('ok');
 
     const id = uuidv4();
@@ -395,15 +400,12 @@ const processSeed = async (req, res) => {
     res.status(200).json({id});
 }
 
-io.on('connection', socket => {
-    handleSocketConnection(socket);
-    //socket.on('sourceUrl', (sourceUrl) => setSourceUrl(socket, sourceUrl));
-    socket.on('input', input => handleInput(socket, input));
-    socket.on('urls', info => handleUrls(socket, info));
-
-    // client.on('event', data => { console.log(data) });
-    // client.on('disconnect', () => { console.log('disconnected', client.id)});
-});
+// io.on('connection', socket => {
+//     handleSocketConnection(socket);
+   
+//     socket.on('input', input => handleInput(socket, input));
+//     socket.on('urls', info => handleUrls(socket, info));
+// });
 
 app.post('/seed', (req, res) => processSeed(req, res));
 

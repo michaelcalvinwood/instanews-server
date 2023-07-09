@@ -11,7 +11,10 @@ const cors = require('cors');
 const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
 
-const urlUtils = require('./utils/url');
+
+const s3 = require('./utils/s3');
+
+//const urlUtils = require('./utils/url');
 const ai = require('./utils/ai');
 const nlp = require('./utils/nlp');
 const serp = require('./utils/serpWow');
@@ -373,6 +376,10 @@ const handleUrls = async (socket, info) => {
 
 const processSeed = async (req, res) => {
     const { article } = req.body;
+
+    console.log(article);
+    return res.status(200).json('ok');
+
     const id = uuidv4();
 
     const q = `INSERT INTO seeds (id, article) VALUES ('${id}', ${mysql.escape(article)})`;

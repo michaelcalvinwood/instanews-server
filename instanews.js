@@ -375,16 +375,16 @@ const handleUrls = async (socket, info) => {
 }
 
 const processSeed = async (req, res) => {
-    const { article } = req.body;
+    const { article, url, title, altTitle } = req.body;
+
+    console.log(url, title, altTitle);
+    return;
 
     const fileName = `seed--${uuidv4()}.html`;
     let link = await s3.uploadHTML(article, 'seeds', fileName);
     
     if (!link) return res.status(500).json('internal server error');
     
-    console.log('link', link);
-    return res.status(200).json('ok');
-
     const id = uuidv4();
 
     const q = `INSERT INTO seeds (id, article) VALUES ('${id}', ${mysql.escape(article)})`;
